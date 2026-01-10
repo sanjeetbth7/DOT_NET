@@ -1,0 +1,1 @@
+{"name":"Local: hello","url":"d:\\dotNET\\hello.cs","tests":[{"id":1767894795718,"input":"AB","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\dotNET\\hello.cs","group":"local","local":true}

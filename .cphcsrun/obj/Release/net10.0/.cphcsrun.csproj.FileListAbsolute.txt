@@ -1,0 +1,14 @@
+d:\dotNET\hello_bin\.cphcsrun.exe
+d:\dotNET\hello_bin\.cphcsrun.deps.json
+d:\dotNET\hello_bin\.cphcsrun.runtimeconfig.json
+d:\dotNET\hello_bin\.cphcsrun.dll
+d:\dotNET\hello_bin\.cphcsrun.pdb
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.GeneratedMSBuildEditorConfig.editorconfig
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.AssemblyInfoInputs.cache
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.AssemblyInfo.cs
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.csproj.CoreCompileInputs.cache
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.dll
+d:\dotNET\.cphcsrun\obj\Release\net10.0\refint\.cphcsrun.dll
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.pdb
+d:\dotNET\.cphcsrun\obj\Release\net10.0\.cphcsrun.genruntimeconfig.cache
+d:\dotNET\.cphcsrun\obj\Release\net10.0\ref\.cphcsrun.dll
