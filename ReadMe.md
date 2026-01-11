@@ -681,6 +681,39 @@ Car myCar = new Car("Red", "Toyota");
 myCar.Drive(); // Outputs: The Red Toyota is driving.
 ```
 
+#### **Encapsulation vs Abstraction [with example and code]**
+- **Encapsulation** is about bundling data and methods that operate on that data within a single unit (class) and restricting access to some components using access modifiers. It focuses on *how* to hide the data.
+- **Abstraction** is about hiding the complex implementation details and exposing only the necessary parts of an object. It focuses on *what* to hide.
+
+```csharp
+public abstract class Bank{
+    protected double balance;
+    protected string name;
+    protected long accountNumber;
+
+    public abstract void Deposit(double amount);
+    public abstract void Withdraw(double amount);
+    public double GetBalance();
+}
+
+public class Customer : Bank{
+    private static long numCustomer = 0;
+    public Customer(string name){
+        this.name = name;
+        this.balance = 0;
+        this.accountNumber = ++numCustomer;
+    }
+
+    public override void Deposit(double amount)
+        balance += amount;
+
+    public override void Withdraw(double amount)
+        if (amount <= balance)
+            balance -= amount;
+}
+```
+
+>> Watch again abstraction vs encapsulation, make notes with example and code, use upper code to explain both.
 
 
 ### References
