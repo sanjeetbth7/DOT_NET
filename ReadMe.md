@@ -420,22 +420,41 @@ int day = 3;
 switch (day)
 {
     case 1:
-        Console.WriteLine("Monday");
-        break;
     case 2:
-        Console.WriteLine("Tuesday");
-        break;
     case 3:
-        Console.WriteLine("Wednesday");
+    case 4:
+        Console.WriteLine("Formal");
+        break;
+    case 5:
+        Console.WriteLine("Cauals");
         break;
     default:
-        Console.WriteLine("Other day");
+        Console.WriteLine("Weekend");
         break;
 }
 ```
+**Advantages of Switch statement :**
+- Faster and Efficient execution especially for large numbers of conditions.
+- Improved readability and maintainability of code.
 
-### Loops in C#
-C# provides several types of loops to execute a block of code multiple times based on certain conditions.
+**Disadvantages of Switch statement :**
+- Limited to discrete values (integers,char, enums, strings).
+- Operate on Only one variable.
+
+**Summary table of if-else ladder and switch statement**
+| Feature               | if-else ladder                          | switch-case                            |
+| --------------------- | -------------------------------------- | -------------------------------------- |
+| Use Case              | Complex conditions, ranges             | Discrete values, single variable       |
+| Readability           | Can become complex with many conditions | More readable for multiple discrete cases |
+| Performance           | Slower for many conditions             | Faster for many discrete cases         |
+
+
+
+### Loops in C# [Control statement or Iterative statment]
+- A loop is a block of code that repeats a given number of times or untill a centain condion is met.
+- Loops are used to simplify task and automate repetitive tasks.
+- Example :  
+- C# provides several types of loops to execute a block of code multiple times based on certain conditions.
 1. **for loop :** 
 ```csharp
 for (int i = 0; i < 5; i++)
@@ -504,6 +523,164 @@ double pi = 3.14159265359;
 Console.WriteLine("Pi to 2 decimal places: {0:F2}", pi); // Outputs: Pi to 2 decimal places: 3.14
 Console.WriteLine($"Pi to 4 decimal places: {pi:F4}"); // Outputs: Pi to 4 decimal places: 3.1416
 ```
+### Array
+- An array is a collection of similar data [homogeneus] which stored in contiguas memory location.
+- Arrays are used to store multiple values in a single variable, instead of declaring separate variables for each value.
+- It is referance variable.
+```csharp
+// Declaration and Initialization
+int[] numbers = new int[3]; // Array of 5 integers
+numbers[0] = 10;
+numbers[1] = 20;
+numbers[2] = 30;
+// Or
+int[] numbers = { 10, 20, 30 }; // Array initialization
+// Accessing Array Elements
+for (int i = 0; i < numbers.Length; i++)
+    Console.WriteLine(numbers[i]);
+```
+**Multi-dimentional array**
+```csharp
+int[,] matrix = new int[2, 3]; // 2 rows, 3 columns
+matrix[0, 0] = 1;
+matrix[0, 1] = 2;
+matrix[0, 2] = 3;
+matrix[1, 0] = 4;
+matrix[1, 1] = 5;
+matrix[1, 2] = 6;
+// other way for 3D
+int[,,] threeD = new int[2, 2, 2]
+{
+    { {1, 2}, {3, 4} },
+    { {5, 6}, {7, 8} }
+};
+// Accessing Multi-dimensional Array Elements
+for (int i = 0; i < 2; i++)
+    for (int j = 0; j < 3; j++)
+        Console.WriteLine(matrix[i, j]);
+```
+
+#### **Jagged Array**
+- In this array, every row can have diffterent size of array.
+```csharp
+int[][] jaggedArray = new int[3][];
+jaggedArray[0] = new int[] { 1, 2 };
+jaggedArray[1] = new int[] { 6, 7, 8, 9 };
+jaggedArray[2] = new int[] { 3, 4, 5 };
+// Accessing Jagged Array Elements
+for (int i = 0; i < jaggedArray.Length; i++)
+    for (int j = 0; j < jaggedArray[i].Length; j++)
+        Console.WriteLine(jaggedArray[i][j]);
+```
+#### **Object Array**
+- An object array can store elements of different data types.
+```csharp
+object[] mixedArray = { 10, "Hello", 3.14, true };
+for (int i = 0; i < mixedArray.Length; i++)
+    Console.WriteLine(mixedArray[i]);
+
+foreach(object obj in mixedArray)
+    Console.WriteLine(obj);
+```
+
+### string in C#
+- A string is a sequence of characters used to represent text.
+- In C#, strings are immutable, meaning that once a System.String object is created in memory, its value cannot be changed. 
+
+**How strings are stored**
+- Strings are stored in the heap memory as objects of the `System.String` class.
+
+**Why Strings are Immutable?**
+- **Performance**: Immutable strings can be shared safely across multiple threads without synchronization.
+- **Security**: Immutable strings prevent accidental or malicious modifications.
+- **Thread Safety**: 
+
+```csharp
+string greeting = "Hello, World!";
+Console.WriteLine(greeting); // Outputs: Hello, World!
+```
+**Operations in strings**
+```csharp
+string str1 = "Hello";
+string str2 = "World";
+// Concatenation
+string combined = str1 + ", " + str2 + "!";
+Console.WriteLine(combined); // Outputs: Hello, World!
+// Length
+int length = combined.Length;
+Console.WriteLine(length); // Outputs: 13
+// Substring
+string sub = combined.Substring(7, 5);
+Console.WriteLine(sub); // Outputs: World
+// Replace
+string replaced = combined.Replace("World", "C#");
+Console.WriteLine(replaced); // Outputs: Hello, C#!
+// Split
+string[] words = combined.Split(' ');
+foreach (string word in words)
+    Console.WriteLine(word);
+// output
+// Hello,
+// World!
+// ToUpper and ToLower
+string upper = combined.ToUpper();
+Console.WriteLine(upper); // Outputs: HELLO, WORLD!
+string lower = combined.ToLower();
+Console.WriteLine(lower); // Outputs: hello, world!
+// Trim
+string spaced = "   Hello, C#!   ";
+string trimmed = spaced.Trim();
+Console.WriteLine(trimmed); // Outputs: Hello, C#!
+```
+
+
+### OOPS in C# 
+- C# is an object-oriented programming (OOP) language that supports the following four main principles of OOP:
+1. **Encapsulation**: 
+   - Encapsulation is the concept of bundling data (attributes) and methods (functions) that operate on the data into a single unit called a class. It restricts direct access to some of an object's components, which helps prevent unintended interference and misuse of the data.
+   - In C#, encapsulation is achieved using access modifiers like `public`, `private`, `protected`, and `internal`.
+2. **Inheritance**:
+    - Inheritance is a mechanism that allows a new class (derived class) to inherit properties and behaviors (methods) from an existing class (base class). This promotes code reusability and establishes a hierarchical relationship between classes.
+    - In C#, inheritance is implemented using the `:` symbol.
+3. **Polymorphism**:
+    - Polymorphism allows methods to do different things based on the object that it is acting upon, even though they share the same name. It enables a single interface to represent different underlying forms (data types).
+    - In C#, polymorphism can be achieved through method overriding (runtime polymorphism) and method overloading (compile-time polymorphism).
+4. **Abstraction**:
+    - Abstraction is the concept of hiding the complex implementation details and showing only the essential features of the object. It helps in reducing complexity and increases efficiency.
+    - In C#, abstraction can be achieved using abstract classes and interfaces.
+
+**CLASS :** A class is a blueprint of object that defines its basic structure and behaivior. It is like a template or a reference to create objects.
+
+**OBJECT :** An object is instance of a class that has its own identity state and behavior. It is created using class and can be mainulated in a program.
+
+> *Classes* and *Objects* allows developers to efficienctly create, modify and maintain a large amount of data. They are basic building blocks of OOPS.
+
+```csharp
+// Class Definition
+public class Car
+{
+    // Fields (Attributes)
+    private string color;
+    private string model;
+
+    // Constructor
+    public Car(string color, string model)
+    {
+        this.color = color;
+        this.model = model;
+    }
+
+    // Method (Behavior)
+    public void Drive()
+    {
+        Console.WriteLine($"The {color} {model} is driving.");
+    }
+}
+// Creating an Object
+Car myCar = new Car("Red", "Toyota");
+myCar.Drive(); // Outputs: The Red Toyota is driving.
+```
+
 
 
 ### References
