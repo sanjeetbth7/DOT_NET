@@ -636,15 +636,217 @@ Console.WriteLine(trimmed); // Outputs: Hello, C#!
 
 ### OOPS in C# 
 - C# is an object-oriented programming (OOP) language that supports the following four main principles of OOP:
+- By default the properties and functions of class is private by default.
 1. **Encapsulation**: 
    - Encapsulation is the concept of bundling data (attributes) and methods (functions) that operate on the data into a single unit called a class. It restricts direct access to some of an object's components, which helps prevent unintended interference and misuse of the data.
    - In C#, encapsulation is achieved using access modifiers like `public`, `private`, `protected`, and `internal`.
 2. **Inheritance**:
     - Inheritance is a mechanism that allows a new class (derived class) to inherit properties and behaviors (methods) from an existing class (base class). This promotes code reusability and establishes a hierarchical relationship between classes.
     - In C#, inheritance is implemented using the `:` symbol.
+    - It is used for code reusability, like if I have defined some properties and function inside parent class, then we do not need to again in chield class.
+
+    **Type of Inheritance**
+    1. **Single Inheritance**: A class inherits from one base class.
+    ```csharp
+    public class Animal{
+        public void Eat(){
+            Console.WriteLine("Animal eats");
+        }
+    }
+    public class Dog : Animal{
+        public void Bark(){
+            Console.WriteLine("Dog barks");
+        }
+    }
+    // Usage
+    Dog myDog = new Dog();
+    myDog.Eat(); // Inherited from Animal
+    myDog.Bark(); // Defined in Dog
+    ```
+    2. **Multilevel Inheritance**: A class inherits from a derived class, forming a chain.
+    ```csharp
+    public class Animal{
+        public void Eat(){
+            Console.WriteLine("Animal eats");
+        }
+    }
+    public class Dog : Animal{
+        public void Bark(){
+            Console.WriteLine("Dog barks");
+        }
+    }
+    public class Puppy : Dog{
+        public void Weep(){
+            Console.WriteLine("Puppy weeps");
+        }
+    }
+    // Usage
+    Puppy myPuppy = new Puppy();
+    myPuppy.Eat(); // Inherited from Animal
+    myPuppy.Bark(); // Inherited from Dog
+    myPuppy.Weep(); // Defined in Puppy
+    ```     
+    3. **Hierarchical Inheritance**: Multiple classes inherit from a single base class.
+    ```csharp
+    public class Animal{
+        public void Eat(){
+            Console.WriteLine("Animal eats");
+        }
+    }
+    public class Dog : Animal{
+        public void Bark(){
+            Console.WriteLine("Dog barks");
+        }
+    }
+    public class Cat : Animal{
+        public void Meow(){
+            Console.WriteLine("Cat meows");
+        }
+    }
+    // Usage
+    Dog myDog = new Dog();
+    myDog.Eat(); // Inherited from Animal
+    myDog.Bark(); // Defined in Dog
+    Cat myCat = new Cat();
+    myCat.Eat(); // Inherited from Animal
+    myCat.Meow(); // Defined in Cat
+    ```
+    4. **Multiple Inheritence**
+    - C# does not support multiple inheritance with classes to avoid complexity and ambiguity. However, it can be achieved using interfaces.
+    - Multiple Inheritense where a chield class inherits from two or more parent class.
+    ```csharp
+    public interface IWalk{
+        void Walk();
+    }
+    public interface ISwim{
+        void Swim();
+    }
+    public class Amphibian : IWalk, ISwim{
+        public void Walk(){
+            Console.WriteLine("Amphibian walks");
+        }
+        public void Swim(){
+            Console.WriteLine("Amphibian swims");
+        }
+    }
+    // Usage
+    Amphibian myAmphibian = new Amphibian();
+    myAmphibian.Walk(); // Implements IWalk
+    myAmphibian.Swim(); // Implements ISwim
+    ```
+    5. **Circular Inheritence :**
+    - Circular inheritance is not allowed in C# as it creates a circular dependency between classes, leading to ambiguity and confusion in the inheritance hierarchy.
+    - It is inheritance where a object inherited from self.
+
 3. **Polymorphism**:
+    - Polymorphism is ability of an object to take many forms according to the context they are used. For example : A person can have different roles: 
+    >**Father** at home, 
+    >**Friend** among friends, and 
+    >**Employee** at workplace.
     - Polymorphism allows methods to do different things based on the object that it is acting upon, even though they share the same name. It enables a single interface to represent different underlying forms (data types).
-    - In C#, polymorphism can be achieved through method overriding (runtime polymorphism) and method overloading (compile-time polymorphism).
+    
+#### **Type of Polymorphism :**
+1. **Compile-time polymorphism :** [static polymorphism]
+    - It is a type of polymorphism whrere the function call or operator operator operation is resolved at the time of code compilation rather than run time.
+    - It is done by 2 ways :
+    * **Method Overloading** – Same method name with different parameter lists.
+    eg. : Console.WriteLine() function, print integers, float , double , strings, etc.
+
+    * **Operator Overloading** – Same operator behaves differently for different user-defined types.
+    eg. :  + (addition) operator adds the numaric values, but in the case of strings it concatinate two strings
+
+
+    ```csharp
+    // Method Overloading Example with adding two or three integers with same name function
+    public class MathOperations{
+        public int Add(int a, int b){ return a+b; }
+
+        public int Add(int a, int b, int c){ return a + b + c; }
+
+        public double Add(double a, double b){ return a + b; }
+    }
+
+    // calling methods
+    MathOperations math = new MathOperations();
+    Console.WriteLine(math.Add(2, 3));          // Calls Add(int, int)
+    Console.WriteLine(math.Add(2, 3, 4));       // Calls Add(int, int, int)
+    Console.WriteLine(math.Add(2.5, 3.5));      // Calls Add(double, double)
+
+    // Operator Overloading
+    public class Complex{
+        public int Real { get; set; }
+        public int Imaginary { get; set; }
+
+        public Complex(int real, int imaginary){
+            Real = real;
+            Imaginary = imaginary;
+        }
+
+        // Overloading the + operator
+        public static Complex operator +(Complex c1, Complex c2){
+            return new Complex(c1.Real + c2.Real, c1.Imaginary + c2.Imaginary);
+        }
+    }
+    // calling overloaded operator
+    Complex num1 = new Complex(2, 3);
+    Complex num2 = new Complex(4, 5);
+    Complex sum = num1 + num2; // Uses overloaded + operator
+    Console.WriteLine($"Sum: {sum.Real} + {sum.Imaginary}i"); // Sum: 6 + 8i
+    ```
+
+2. **Run-time polymorphism :** [dynamic polymorphism]
+    - It is a type of polymorphism whrere the function call operation is resolved at run time.
+    - It is done by :
+    * **Method Overriding** - A derived class provides a specific implementation of a method defined in a base class using `virtual` and `override`.
+
+    eg. : 
+
+    ```csharp
+    public class Animal{
+        public virtual void Speak(){
+            Console.WriteLine("Animal speaks");
+        }
+    }
+    public class Dog : Animal{
+        public override void Speak(){
+            Console.WriteLine("Dog barks");
+        }
+    }
+    public class Cat : Animal{
+        public override void Speak(){
+            Console.WriteLine("Cat meows");
+        }
+    }
+    // calling overridden methods
+    Animal myDog = new Dog();
+    Animal myCat = new Cat();
+    myDog.Speak(); // Outputs: Dog barks
+    myCat.Speak(); // Outputs: Cat meows
+    ```
+    * explaination : The base class `Animal` declares a `virtual` method `Speak()`, which is overridden in `Dog` and `Cat`.
+At run time, the method call is resolved based on the **actual object type** (`Dog` or `Cat`), not the reference type (`Animal`).
+
+> **Note :** If we do not use virtual keyword then overriding will not occur and It will resolve ant compile time.
+```csharp
+public class Animal{
+    public void Speak(){
+        Console.WriteLine("Animal speaks");
+    }
+}
+public class Dog : Animal{
+    public void Speak(){
+        Console.WriteLine("Dog barks");
+    }
+}
+
+Animal myDog = new Dog();
+myDog.Speak();   // Output: Animal speaks
+```
+
+
+> Compile-time polymorphism in C# is achieved using **method overloading and operator overloading**, while run-time polymorphism is achieved using **method overriding**.
+
+
 4. **Abstraction**:
     - Abstraction is the concept of hiding the complex implementation details and showing only the essential features of the object. It helps in reducing complexity and increases efficiency.
     - In C#, abstraction can be achieved using abstract classes and interfaces.
