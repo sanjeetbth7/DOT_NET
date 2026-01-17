@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<nav>
+ 	<h1>Bank App</h1>
+
+    <!-- Top Action Buttons -->
+    <div class="btnGroup">
+      <button id="showRegisterBtn" type="button">Register</button>
+      <button id="showLoginBtn" type="button">Login</button>
+      <button id="showLogoutBtn" class="btnDanger hidden" type="button">Logout</button>
+    </div>
+</nav>
+
+  <div class="container">
+
+    <!-- Register Card -->
+    <div class="card" id="registerCard">
+      <h2>Register</h2>
+
+      <form id="registerForm">
+        <div class="grid">
+          <div>
+            <label>Customer Aadhaar ID</label>
+            <input type="text" id="aadhaar" maxlength="12" required />
+          </div>
+
+          <div>
+            <label>First Name</label>
+            <input type="text" id="firstName" maxlength="50" required />
+          </div>
+
+          <div>
+            <label>Last Name</label>
+            <input type="text" id="lastName" maxlength="50" required />
+          </div>
+
+          <div>
+            <label>Email</label>
+            <input type="email" id="email" required />
+          </div>
+
+          <div>
+            <label>Password</label>
+            <input type="password" id="password" minlength="12" maxlength="20" required />
+          </div>
+
+          <div>
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" minlength="12" maxlength="20" required />
+          </div>
+
+          <div>
+            <label>Address</label>
+            <textarea id="address" maxlength="100" required></textarea>
+          </div>
+
+          <div>
+            <label>Contact Number</label>
+            <input type="text" id="contact" minlength="10" maxlength="10" required />
+          </div>
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card" id="loginCard">
+      <h2>Login</h2>
+
+      <form id="loginForm" class="grid2">
+        <div>
+          <label>Account Number</label>
+          <input type="text" id="loginAccNo" required />
+        </div>
+
+        <div>
+          <label>Password</label>
+          <input type="password" id="loginPassword" required />
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <!-- Dashboard Card -->
+    <div class="card hidden" id="dashboard">
+      <div class="dashHeader">
+        <h2>Customer Dashboard</h2>
+        <!-- Keeping in-card logout as well (optional). It mirrors the top one -->
+        <button id="logoutBtn" class="btnDanger" type="button">Logout</button>
+      </div>
+
+      <div class="info">
+        <p><b>Account No:</b> <span id="dashAcc"></span></p>
+        <p><b>Customer Name:</b> <span id="dashName"></span></p>
+        <p><b>Email:</b> <span id="dashEmail"></span></p>
+        <p><b>Balance:</b> ₹<span id="dashBalance"></span></p>
+      </div>
+
+      <hr />
+
+      <h3>Edit Details</h3>
+      <form id="updateForm" class="grid2">
+        <div>
+          <label>Address</label>
+          <textarea id="updAddress" maxlength="100" required></textarea>
+        </div>
+
+        <div>
+          <label>Contact Number</label>
+          <input type="text" id="updContact" maxlength="10" required />
+        </div>
+
+        <button type="submit">Update</button>
+      </form>
+
+      <hr />
+
+      <h3>Deposit</h3>
+      <form id="depositForm" class="grid2">
+        <div>
+          <label>Deposit Amount</label>
+          <input type="number" id="depositAmount" min="1" required />
+        </div>
+        <button type="submit">Deposit</button>
+      </form>
+
+      <hr />
+
+      <h3>Withdraw</h3>
+      <form id="withdrawForm" class="grid2">
+        <div>
+          <label>Withdraw Amount</label>
+          <input type="number" id="withdrawAmount" min="1" required />
+        </div>
+        <button type="submit">Withdraw</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

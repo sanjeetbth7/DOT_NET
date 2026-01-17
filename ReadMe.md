@@ -632,14 +632,17 @@ string spaced = "   Hello, C#!   ";
 string trimmed = spaced.Trim();
 Console.WriteLine(trimmed); // Outputs: Hello, C#!
 ```
-
-
+----
+----
 ### OOPS in C# 
 - C# is an object-oriented programming (OOP) language that supports the following four main principles of OOP:
 - By default the properties and functions of class is private by default.
 1. **Encapsulation**: 
    - Encapsulation is the concept of bundling data (attributes) and methods (functions) that operate on the data into a single unit called a class. It restricts direct access to some of an object's components, which helps prevent unintended interference and misuse of the data.
    - In C#, encapsulation is achieved using access modifiers like `public`, `private`, `protected`, and `internal`.
+
+---
+
 2. **Inheritance**:
     - Inheritance is a mechanism that allows a new class (derived class) to inherit properties and behaviors (methods) from an existing class (base class). This promotes code reusability and establishes a hierarchical relationship between classes.
     - In C#, inheritance is implemented using the `:` symbol.
@@ -737,6 +740,21 @@ Console.WriteLine(trimmed); // Outputs: Hello, C#!
     5. **Circular Inheritence :**
     - Circular inheritance is not allowed in C# as it creates a circular dependency between classes, leading to ambiguity and confusion in the inheritance hierarchy.
     - It is inheritance where a object inherited from self.
+
+    >**NOTE :** We can use **sealed** keyword before a class, then other class can inherit this. but we can create of object of this.
+    ```csharp
+    public sealed class BaseClass{
+        public void Display(){
+            Console.WriteLine("BaseClass Display method");
+        }
+    }
+    // This will cause a compile-time error
+    public class DerivedClass : BaseClass{
+        // Error: Cannot derive from sealed class 'BaseClass'
+    }
+    ```
+
+---
 
 3. **Polymorphism**:
     - Polymorphism is ability of an object to take many forms according to the context they are used. For example : A person can have different roles: 
@@ -846,6 +864,7 @@ myDog.Speak();   // Output: Animal speaks
 
 > Compile-time polymorphism in C# is achieved using **method overloading and operator overloading**, while run-time polymorphism is achieved using **method overriding**.
 
+---
 
 4. **Abstraction**:
     - Abstraction is the concept of hiding the complex implementation details and showing only the essential features of the object. It helps in reducing complexity and increases efficiency.
@@ -882,6 +901,7 @@ public class Car
 Car myCar = new Car("Red", "Toyota");
 myCar.Drive(); // Outputs: The Red Toyota is driving.
 ```
+---
 
 #### **Encapsulation vs Abstraction [with example and code]**
 - **Encapsulation** is about bundling data and methods that operate on that data within a single unit (class) and restricting access to some components using access modifiers. It focuses on *how* to hide the data.
@@ -916,6 +936,213 @@ public class Customer : Bank{
 ```
 
 >> Watch again abstraction vs encapsulation, make notes with example and code, use upper code to explain both.
+>> watch design pattern
+---
+
+### Abstract class vs Interface
+* **Abstract class** : To implement partial abstraction we use abstraction class. Here some methods can be declared and some can be defiened.
+- Abstract class is a class that can not be intantiated. That means we can not create object of this class. It is used to provide base to sub-classes.
+- we use *abstract* keyword to make a class as abstract class, and also before a method to make it abstract.
+
+* **Interface** : To implement full abstraction we use interface. Here all methods are declared but not defined. We can say that it is purely abstract.
+- Interfaces defines set of methods and properties that a class must implement. They provide contract to future implementation. we use same ":" to implement (or inherit).
+- With the help of interface we can implement **multilple inheritance**.
+- We use *interface* keyword to create interface. Neither use class keyword befor a interface name, nor abstract key word before method.
+
+```csharp
+// Abstract Class Example
+public abstract class Shape
+{
+    public abstract double Area(); // Abstract method
+    public void Display() // Concrete method
+    {
+        Console.WriteLine("This is a shape.");
+    }
+}
+public class Circle : Shape
+{
+    private double radius;
+    public Circle(double radius)
+    {
+        this.radius = radius;
+    }
+    public override double Area() // Implementing abstract method
+    {
+        return Math.PI * radius * radius;
+    }
+}
+// Interface Example
+public interface IShape
+{
+    double Area(); // Method declaration
+    void Display(); // Method declaration
+}
+public class Rectangle : IShape
+{
+    private double length;
+    private double width;
+    public Rectangle(double length, double width)
+    {
+        this.length = length;
+        this.width = width;
+    }
+    public double Area() // Implementing method
+    {
+        return length * width;
+    }
+    public void Display() // Implementing method
+    {
+        Console.WriteLine("This is a rectangle.");
+    }
+}
+```
+
+> Multiple inheritance using interface
+```csharp
+public interface IWalk
+{
+    void Walk();
+}
+public interface ISwim
+{
+    void Swim();
+}
+public class Amphibian : IWalk, ISwim
+{
+    public void Walk()
+    {
+        Console.WriteLine("Amphibian walks.");
+    }
+    public void Swim()
+    {
+        Console.WriteLine("Amphibian swims.");
+    }
+}
+```
+* What happens if there are same declations of methods? in the case of multiple inheritance.
+- 
+```csharp
+public interface IFirst
+{
+    void Show();
+}
+public interface ISecond
+{
+    void Show();
+}
+public class Demo : IFirst, ISecond
+{
+    void IFirst.Show() // Explicit implementation for IFirst
+    {
+        Console.WriteLine("IFirst Show method");
+    }
+    void ISecond.Show() // Explicit implementation for ISecond
+    {
+        Console.WriteLine("ISecond Show method");
+    }
+}
+// Usage
+Demo demo = new Demo();
+((IFirst)demo).Show(); // Calls IFirst Show method
+((ISecond)demo).Show(); // Calls ISecond Show method
+```
+
+* What happens if there are same declations of propeties (may with same name but different datatype)? in the case of multiple inheritance.
+```csharp
+public interface IFirst
+{
+    int Value { get; set; }
+}
+public interface ISecond
+{
+    string Value { get; set; }
+}
+public class Demo : IFirst, ISecond
+{
+    int IFirst.Value { get; set; } // Explicit implementation for IFirst
+    string ISecond.Value { get; set; } // Explicit implementation for ISecond
+}
+// Usage
+Demo demo = new Demo();
+((IFirst)demo).Value = 10; // Sets IFirst Value
+((ISecond)demo).Value = "Hello"; // Sets ISecond Value
+```
+
+>> READ ABOUT HOW ACCESS SPECIFIRES WORKS IN INTERFACE AND ABSTRACT CLASS, LIKE in abstract class if any method is private then it can't be inherited but need to defined at the time of declaration.
+---
+
+### Some important topics
+
+#### 1️⃣ `const`
+
+* Fixed value at **compile-time**
+* Automatically **static**, cannot use `static` keyword
+* Cannot change after compilation
+* Syntax:
+
+```csharp
+public const int MinBalance = 500;
+```
+
+* Access: `Constants.MinBalance` (no object needed)
+
+
+#### 2️⃣ `static`
+
+* Belongs to **class**, not instance
+* Can hold **shared data or utility methods**
+* Can be modified (unless `readonly`)
+* Syntax:
+
+```csharp
+public static int Counter = 0;
+
+public static void PrintHello() => Console.WriteLine("Hello");
+```
+
+* Access: `MyClass.Counter` or `MyClass.PrintHello()`
+
+---
+
+#### 3️⃣ `readonly`
+
+* Value fixed **after runtime initialization**
+* Can be assigned in **declaration or constructor**
+* Can be `static readonly` for class-level constants
+
+```csharp
+public static readonly DateTime StartTime = DateTime.Now;
+```
+
+---
+
+#### **4️⃣ `static class`**
+
+* Cannot be instantiated
+* Cannot inherit or implement interfaces
+* All members **must be static**
+* Ideal for **constants, config, utilities**
+
+```csharp
+static class Constants
+{
+    public const string AdminID = "admin";
+    public static readonly DateTime StartTime = DateTime.Now;
+
+    public static void ShowInfo() => Console.WriteLine(AdminID);
+}
+```
+
+* Access: `Constants.AdminID` or `Constants.ShowInfo()`
+
+---
+
+### ✅ Key Rules
+
+* `const` = compile-time constant, auto-static
+* `static` = class-level shared member
+* `readonly` = runtime constant
+* `static class` = container for constants/utilities, no object creation
 
 
 ### References
