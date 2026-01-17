@@ -1135,7 +1135,34 @@ static class Constants
 
 * Access: `Constants.AdminID` or `Constants.ShowInfo()`
 
----
+#### sealed class
+* Cannot be inherited
+* But we can create objects of these classes
+```csharp
+using System;
+
+sealed class Calculator
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Calculator calc = new Calculator();
+        int result = calc.Add(5, 3);
+        Console.WriteLine("Sum: " + result);
+    }
+}
+
+ // The following will cause a compile-time error:
+        // class AdvancedCalc : Calculator {}
+
+```
 
 ### ✅ Key Rules
 
