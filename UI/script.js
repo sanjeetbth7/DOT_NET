@@ -1,349 +1,212 @@
-
-// ---- Config ----
 const USERS_KEY = "bank_users";
 const SESSION_KEY = "bank_session";
-const ACCOUNT_NO_SET_KEY = "generated_account_numbers_v1"; // version your storage for future migrations
 const MINIMUM_BALANCE = 500;
 
-// ---- DOM helpers ----
-const $ = (sel) => document.querySelector(sel);
+const showRegisterBtn = document.querySelector("#showRegisterBtn");
+const showLoginBtn = document.querySelector("#showLoginBtn");
+const logoutBtn = document.querySelector("#logoutBtn");
+
 const addHidden = (el) => el && el.classList.add("hidden");
 const removeHidden = (el) => el && el.classList.remove("hidden");
 
-const registerCard = $("#registerCard");
-const loginCard = $("#loginCard");
-const dashboard = $("#dashboard");
-
-// Top action buttons
-const btnShowRegister = $("#showRegisterBtn");
-const btnShowLogin = $("#showLoginBtn");
-const btnShowLogout = $("#showLogoutBtn");
-const btnLogout = $("#logoutBtn");
-
-// Forms
-const registerForm = $("#registerForm");
-const loginForm = $("#loginForm");
-
-// ---- Storage helpers ----
 const safeParse = (raw, fallback) => {
-  try {
-    return JSON.parse(raw ?? ""); // will throw for undefined/empty
-  } catch {
-    return fallback;
-  }
+  try { return JSON.parse(raw) || fallback; } 
+  catch { return fallback; }
 };
 
 const getUsers = () => safeParse(localStorage.getItem(USERS_KEY), []);
-const saveUsers = (users) => localStorage.setItem(USERS_KEY, JSON.stringify(Array.isArray(users) ? users : []));
-
+const saveUsers = (users) => localStorage.setItem(USERS_KEY, JSON.stringify(users));
 const getSession = () => safeParse(localStorage.getItem(SESSION_KEY), null);
 const saveSession = (accNo) => localStorage.setItem(SESSION_KEY, JSON.stringify({ accountNo: accNo }));
 const clearSession = () => localStorage.removeItem(SESSION_KEY);
 
-// ---- Persisted set of generated account numbers ----
-const loadGeneratedAccountNumbers = () => {
-  const raw = safeParse(localStorage.getItem(ACCOUNT_NO_SET_KEY), []);
-  const arr = Array.isArray(raw) ? raw : [];
-  return new Set(arr.map(String)); // normalize to string
-};
 
-const persistGeneratedAccountNumbers = (set) => {
-  localStorage.setItem(ACCOUNT_NO_SET_KEY, JSON.stringify(Array.from(set)));
-};
 
-// Seed the set from storage and existing users (so previously registered accounts stay unique)
-const generatedAccountNumbers = (() => {
-  const set = loadGeneratedAccountNumbers();
-  const existingUsers = getUsers();
-  for (const u of existingUsers) {
-    if (u?.accountNo) set.add(String(u.accountNo));
-  }
-  persistGeneratedAccountNumbers(set);
-  return set;
-})();
-
-// ---- Account number generation ----
-// Unique 6-digit number (100000–999999), persisted across sessions.
-// Uses crypto.getRandomValues for stronger randomness than Math.random.
-// Includes a max-attempt guard to avoid infinite loops if the space gets saturated.
-const accountNumber = () => {
-  const MAX_ATTEMPTS = 5000;
-  for (let attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-    const buf = new Uint32Array(1);
-    crypto.getRandomValues(buf);
-    const num = 100000 + (buf[0] % 900000);
-    const candidate = String(num);
-
-    if (!generatedAccountNumbers.has(candidate)) {
-      generatedAccountNumbers.add(candidate);
-      persistGeneratedAccountNumbers(generatedAccountNumbers);
-      return candidate;
+const generateAccountNumber = () => {
+    const users = getUsers();
+    let isUnique = false;
+    let newAcc;
+    while(!isUnique) {
+        newAcc = String(Math.floor(100000 + Math.random() * 900000));
+        isUnique = !users.some(u => u.accountNo === newAcc);
     }
-  }
-  throw new Error("Unable to generate a unique account number. Please try again or expand the ID space.");
+    return newAcc;
 };
 
-// --- check password condition ---
-function checkPasswordCondition(pwd) {
-  const hasUpper   = /[A-Z]/.test(pwd);
-  const hasLower   = /[a-z]/.test(pwd);
-  const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
-  const hasLength  = pwd.length >= 8;
-
-  // Require ALL conditions
-  return hasUpper && hasLower && hasSpecial && hasLength;
-}
-
-
-// ---- Lookup ----
-const findUser = (accNo) => getUsers().find((u) => String(u.accountNo) === String(accNo));
-
-// ---- View management ----
 function showView(view) {
-  switch (view) {
-    case "register":
-      removeHidden(registerCard);
-      addHidden(loginCard);
-      addHidden(dashboard);
-      addHidden(btnShowLogout);
-      break;
-    case "login":
-      addHidden(registerCard);
-      removeHidden(loginCard);
-      addHidden(dashboard);
-      addHidden(btnShowLogout);
-      break;
-    case "dashboard":
-      removeHidden(dashboard);
-      removeHidden(btnShowLogout);
-      addHidden(registerCard);
-      addHidden(loginCard);
-      break;
-    default:
-      showView("login");
+  const views = {
+    register: document.querySelector("#registerCard"),
+    login: document.querySelector("#loginCard"),
+    dashboard: document.querySelector("#dashboard")
+  };
+  
+  Object.values(views).forEach(v => addHidden(v));
+
+  if (views[view]) removeHidden(views[view]);
+  else views["login"] && removeHidden(views["login"]);
+
+  if (view === "dashboard") {
+    removeHidden(logoutBtn);
+    addHidden(showRegisterBtn);
+    addHidden(showLoginBtn);
+  } else {
+    addHidden(logoutBtn);
+    removeHidden(showRegisterBtn);
+    removeHidden(showLoginBtn);
   }
 }
 
-// ---- Initial state ----
-if (getSession()) {
-  showDashboard();
-} else {
-  showView("login");
+const validateContact = (num) => /^[6-9]\d{9}$/.test(num); // It return true if 10 digit and starts with 6-9 else false
+const validateAdhar = (num) => /^[1-9]\d{11}$/.test(num); // It return true if 12 digit and starts with 1-9 else false
+const checkPassword = (pwd) => /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd) && pwd.length >= 8; 
+
+function updateDashboardUser(updatedUser) {
+  const users = getUsers();
+  const index = users.findIndex(u => u.accountNo === updatedUser.accountNo);
+  if (index >=0) {
+    users[index] = updatedUser;
+    saveUsers(users);
+    renderDashboard();
+  }else {
+    alert("Error: User not found.");
+    window.location.href = "/"; // Redirect to home/login
+  }
 }
 
-// ---- Top buttons handlers ----
-const doLogout = () => {
-  clearSession();
-  showView("login");
-  alert("Logged out.");
-};
-
-btnShowRegister?.addEventListener("click", () => {
-  loginForm?.reset();
-  showView("register");
-});
-
-btnShowLogin?.addEventListener("click", () => {
-  registerForm?.reset();
-  showView("login");
-});
-
-btnShowLogout?.addEventListener("click", doLogout);
-btnLogout?.addEventListener("click", doLogout);
-
-// ---- Registration ----
-document.getElementById("registerForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const aadhaar = aadhaarEl().value.trim();
-  const firstName = firstNameEl().value.trim();
-  const lastName = lastNameEl().value.trim();
-  const email = emailEl().value.trim();
-  const password = passwordEl().value;
-  const confirmPassword = confirmPasswordEl().value;
-  const address = addressEl().value.trim();
-  const contact = contactEl().value.trim();
-
-  if (password !== confirmPassword) {
-    alert("Password and Confirm Password should be same.");
-    return;
-  }
-
-  if (!/^\d{12}$/.test(aadhaar)) {
-    alert("Please enter a valid 12-digit Aadhaar number.");
-    return;
-  }
-  if (!/^\d{10}$/.test(contact)) {
-    alert("Please enter a valid 10-digit contact number.");
-    return;
-  }
-
-
-if (!checkPasswordCondition(passwordEl().value)) {
-  alert("Password must contain at least one: uppercase, lowercase, number, or special character.");
-  return;
-}
-
+function renderDashboard() {
+  const session = getSession();
+  if (!session) return showView("login");
 
   const users = getUsers();
+  const user = users.find(u => u.accountNo === session.accountNo);
+  if (!user) return doLogout();
 
-  // --- Prevent duplicate Aadhaar / email (recommended in banking flows) ---
-  if (users.some(u => String(u.aadhaar) === aadhaar)) {
-    alert("An account with this Aadhaar already exists.");
-    return;
-  }
-  if (users.some(u => String(u.email).toLowerCase() === email.toLowerCase())) {
-    alert("An account with this email already exists.");
-    return;
-  }
+  showView("dashboard");
+  document.querySelector("#dashAcc").innerText = user.accountNo;
+  document.querySelector("#dashName").innerText = `${user.firstName} ${user.lastName}`;
+  document.querySelector("#dashEmail").innerText = user.email;
+  document.querySelector("#dashBalance").innerText = user.balance;
+  document.querySelector("#updAddress").value = user.address;
+  document.querySelector("#updContact").value = user.contact;
+}
+
+document.querySelector("#registerForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const users = getUsers();
+  const email = document.querySelector("#email").value.trim();
+  const pass = document.querySelector("#password").value;
+  const aadhaar = document.querySelector("#aadhaar").value.trim();
+  const contact = document.querySelector("#contact").value.trim();
+
+  if (!validateAdhar(aadhaar)) return alert("Invalid Aadhaar: Must be a 12-digit number starting with 1-9.");
+  if (!validateContact(contact)) return alert("Invalid Contact: Must be a 10-digit number starting with 6-9.");
+
+  if (pass !== document.querySelector("#confirmPassword").value) return alert("Registration Failed: Passwords do not match.");
+  if (!checkPassword(pass)) return alert("Weak Password: Must be 8+ chars with Uppercase, Lowercase, and a Number.");
+  if (users.some(u => u.email === email)) return alert("Registration Failed: Email already exists.");
 
   const newUser = {
-    accountNo: accountNumber(),
-    aadhaar,
-    firstName,
-    lastName,
-    email,
-    password,
-    address,
-    contact,
+    accountNo: generateAccountNumber(),
+    aadhaar: document.querySelector("#aadhaar").value,
+    firstName: document.querySelector("#firstName").value,
+    lastName: document.querySelector("#lastName").value,
+    email: email,
+    password: pass,
+    address: document.querySelector("#address").value,
+    contact: document.querySelector("#contact").value,
     balance: 0
   };
 
   users.push(newUser);
   saveUsers(users);
-
-  alert("Customer Registration successful.\nAccount Number: " + newUser.accountNo);
+  alert(`Registration Successful!\nWelcome ${newUser.firstName}!\nYour Account Number is: ${newUser.accountNo}`);
   this.reset();
   showView("login");
 });
 
-// ---- Login ----
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.querySelector("#loginForm").addEventListener("submit", function(e) {
   e.preventDefault();
+  const acc = document.querySelector("#loginAccNo").value;
+  const pass = document.querySelector("#loginPassword").value;
+  const user = getUsers().find(u => u.accountNo === acc && u.password === pass);
 
-  const accNo = document.getElementById("loginAccNo").value.trim();
-  const pass = document.getElementById("loginPassword").value;
-
-  const user = findUser(accNo);
-
-  if (!user) {
-    alert("Account not found.");
-    return;
+  if (user) {
+    saveSession(user.accountNo);
+    alert(`Login Successful!\nWelcome back, ${user.firstName}.`);
+    renderDashboard();
+  } else {
+    alert("Login Failed: Invalid Account Number or Password.");
   }
-
-  if (user.password !== pass) {
-    alert("Invalid Password.");
-    return;
-  }
-
-  saveSession(user.accountNo);
-  alert("Customer login successful.");
-  showDashboard();
-  this.reset();
 });
 
-// ---- Dashboard population ----
-function showDashboard() {
+document.querySelector("#updateAddressForm").addEventListener("submit", function(e) {
+  e.preventDefault();
   const session = getSession();
-  if (!session) return;
-
-  const user = findUser(session.accountNo);
-  if (!user) return;
-
-  showView("dashboard");
-
-  document.getElementById("dashAcc").innerText = user.accountNo;
-  document.getElementById("dashName").innerText = user.firstName + " " + user.lastName;
-  document.getElementById("dashEmail").innerText = user.email;
-  document.getElementById("dashBalance").innerText = user.balance;
-
-  document.getElementById("updAddress").value = user.address;
-  document.getElementById("updContact").value = user.contact;
-}
-
-// ---- Persist updates ----
-function updateDashboardUser(user) {
   const users = getUsers();
-  const idx = users.findIndex(u => String(u.accountNo) === String(user.accountNo));
-  if (idx >= 0) {
-    users[idx] = user;
-    saveUsers(users);
-  }
-  showDashboard();
-}
-
-// ---- Update contact/address ----
-document.getElementById("updateForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const session = getSession();
-  const user = findUser(session.accountNo);
-
-  user.address = document.getElementById("updAddress").value.trim();
-  user.contact = document.getElementById("updContact").value.trim();
-
+  const user = users.find(u => u.accountNo === session.accountNo);
+  user.address = document.querySelector("#updAddress").value;
   updateDashboardUser(user);
-  alert("Customer update successful.");
+  alert("Success: Address has been updated.");
 });
 
-// ---- Deposit ----
-document.getElementById("depositForm").addEventListener("submit", function (e) {
+document.querySelector("#updateContactForm").addEventListener("submit", function(e) {
   e.preventDefault();
+  const session = getSession();
+  const users = getUsers();
+  const user = users.find(u => u.accountNo === session.accountNo);
+  const newContact = document.querySelector("#updContact").value;
+  if(validateContact(newContact)) {
+      user.contact = newContact;
+      updateDashboardUser(user);
+      alert("Success: Contact number has been updated.");
+  } else {
+      alert("Update Failed: Please enter a valid 10-digit contact number.");
+  }
+});
+
+document.querySelector("#depositForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const amt = Number(document.querySelector("#depositAmount").value);
+  if (isNaN(amt) || amt <= 0) return alert("Invalid amount.");
 
   const session = getSession();
-  const user = findUser(session.accountNo);
-  const amount = Number(document.getElementById("depositAmount").value);
-
-  if (Number.isNaN(amount) || amount <= 0) {
-    alert("Please enter a valid deposit amount.");
-    return;
-  }
-
-  user.balance += amount;
+  const users = getUsers();
+  const user = users.find(u => u.accountNo === session.accountNo);
+  
+  user.balance += amt;
   updateDashboardUser(user);
-  alert(`Deposit successful.\nYour current balance is ${user.balance}`);
+  alert(`Deposit Successful!\nAmount: ₹${amt}\nNew Balance: ₹${user.balance}`);
   this.reset();
 });
 
-// ---- Withdraw ----
-document.getElementById("withdrawForm").addEventListener("submit", function (e) {
+document.querySelector("#withdrawForm").addEventListener("submit", function(e) {
   e.preventDefault();
+  const amt = Number(document.querySelector("#withdrawAmount").value);
+  if (isNaN(amt) || amt <= 0) return alert("Invalid amount.");
 
   const session = getSession();
-  const user = findUser(session.accountNo);
-
-  const amount = Number(document.getElementById("withdrawAmount").value);
-  const remainingBalance = user.balance - amount;
-
-  if (Number.isNaN(amount) || amount <= 0) {
-    alert("Please enter a valid withdraw amount.");
-    return;
+  const users = getUsers();
+  const user = users.find(u => u.accountNo === session.accountNo);
+  
+  if (user.balance - amt < MINIMUM_BALANCE) {
+      return alert(`Withdrawal Failed!\nInsufficient funds to maintain minimum balance of ₹${MINIMUM_BALANCE}.\nAvailable: ₹${user.balance}`);
   }
-
-  if (remainingBalance < MINIMUM_BALANCE) {
-    alert("Insufficient Balance.");
-    return;
-  }
-
-  user.balance -= amount;
+  
+  user.balance -= amt;
   updateDashboardUser(user);
-
-  alert(`Withdraw successful.\nYour remaining balance is ${user.balance}`);
+  alert(`Withdrawal Successful!\nAmount: ₹${amt}\nRemaining Balance: ₹${user.balance}`);
   this.reset();
 });
 
-// ---- Field getters ----
-/*
-used field getters
-Always gets the latest element: If the DOM is dynamically updated (e.g., the element is replaced via JS), calling the function always fetches the current element.
+const doLogout = () => { 
+    clearSession(); 
+    showView("login"); 
+    alert("You have been logged out.");
+};
 
-Lazy evaluation: The element is only looked up when needed, not when the script loads. This avoids errors if the script runs before the DOM is ready.
-*/
-function aadhaarEl(){ return document.getElementById("aadhaar"); }
-function firstNameEl(){ return document.getElementById("firstName"); }
-function lastNameEl(){ return document.getElementById("lastName"); }
-function emailEl(){ return document.getElementById("email"); }
-function passwordEl(){ return document.getElementById("password"); }
-function confirmPasswordEl(){ return document.getElementById("confirmPassword"); }
-function addressEl(){ return document.getElementById("address"); }
-function contactEl(){ return document.getElementById("contact"); }
+document.querySelector("#logoutBtn").addEventListener("click", doLogout);
+document.querySelector("#showRegisterBtn").addEventListener("click", () => showView("register"));
+document.querySelector("#showLoginBtn").addEventListener("click", () => showView("login"));
+
+if (getSession()) renderDashboard();
+else showView("login");
