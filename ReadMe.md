@@ -844,6 +844,8 @@ Console.WriteLine(trimmed); // Outputs: Hello, C#!
     * explaination : The base class `Animal` declares a `virtual` method `Speak()`, which is overridden in `Dog` and `Cat`.
 At run time, the method call is resolved based on the **actual object type** (`Dog` or `Cat`), not the reference type (`Animal`).
 
+
+
 > **Note :** If we do not use virtual keyword then overriding will not occur and It will resolve ant compile time.
 ```csharp
 public class Animal{
@@ -863,6 +865,28 @@ myDog.Speak();   // Output: Animal speaks
 
 
 > Compile-time polymorphism in C# is achieved using **method overloading and operator overloading**, while run-time polymorphism is achieved using **method overriding**.
+
+
+* **Method Overhiding**
+> Function overhiding is creating a new method that has the same name and signature as an existing method in the parent class. The new method is only visible in the subclass and does not change the behavior of the parent class method.
+
+>Use function overiding when you want to provide a different implementation for a method in the subclass. Use Function Over Hiding when you want to hide an implementation in the parent class and provide.
+
+```csharp
+public class Animal{
+    public void Speak(){
+        Console.WriteLine("Animal speaks");
+    }
+}
+public class Dog : Animal{
+    public new void Speak(){
+        Console.WriteLine("Dog barks");
+    }
+}
+
+Animal myDog = new Dog();
+myDog.Speak();   // Output: Animal speaks
+```
 
 ---
 
